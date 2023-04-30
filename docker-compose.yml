@@ -1,0 +1,10 @@
+version: "3.7"
+services:
+  deno-latest:
+    image: denoland/deno:latest
+    working_dir: /app
+    environment:
+      - APP_ENV=development
+    volumes:
+      - ./src:/src
+    entrypoint: deno run --allow-net /src/main.ts
