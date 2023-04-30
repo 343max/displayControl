@@ -28,6 +28,8 @@ const powerSwitchSensorTopic = "tele/displaymax/SENSOR"
 const powerSwitchPowerTopic = "cmnd/displaymax/POWER"
 const buttonPressTopic = "shellies/maxdisplay-button/input_event/0"
 
+const sleepCurrent = 0.085
+
 const main = async () => {
   const client = new Client({ url: "mqtt://nuc.fritz.box" })
 
@@ -51,10 +53,10 @@ const main = async () => {
     }
 
     if (
-      (sensor.ENERGY.Current < 0.05 &&
+      (sensor.ENERGY.Current < sleepCurrent &&
         displayPower === "ON" &&
         lastEnergy?.Current) ??
-      1 < 0.05
+      1 < sleepCurrent
     ) {
       setSwitchPowerState("OFF")
     }
