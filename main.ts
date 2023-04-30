@@ -24,35 +24,63 @@ type ButtonPress = {
   event_cnt: number
 }
 
+const powerSwitchSensorTopic = "tele/displaymax/SENSOR"
+const powerSwitchPowerTopic = "cmnd/displaymax/POWER"
+const buttonPressTopic = "shellies/maxdisplay-button/input_event/0"
+
 const main = async () => {
   const client = new Client({ url: "mqtt://nuc.fritz.box" })
 
   await client.connect()
 
-  const powerSwitchSensorTopic = "tele/displaymax/SENSOR"
-  const powerSwitchPowerTopic = "cmnd/displaymax/POWER"
-  const buttonPressTopic = "shellies/maxdisplay-button/input_event/0"
-
   await client.subscribe(powerSwitchSensorTopic)
   await client.subscribe(powerSwitchPowerTopic)
   await client.subscribe(buttonPressTopic)
 
-  const handleSensorUpdate = (json: SwitchSensorResponse) => {
-    console.log(`Power: ${json.ENERGY.Power}W`)
+  let displayPower: undefined | SwitchPowerState = undefined
+  let lastEnergy: undefined | SwitchSensorResponse["ENERGY"] = undefined
+
+  const handleSensorUpdate = (sensor: SwitchSensorResponse) => {
+    console.log(
+      `Power: ${sensor.ENERGY.Power}W Current: ${sensor.ENERGY.Current}A`
+    )
+
+    if (displayPower === undefined) {
+      displayPower = sensor.ENERGY.Current > 0 ? "ON" : "OFF"
+      console.log(`guessed Display power: ${displayPower}`)
+    }
+
+    if (
+      (sensor.ENERGY.Current < 0.05 &&
+        displayPower === "ON" &&
+        lastEnergy?.Current) ??
+      1 < 0.05
+    ) {
+      setSwitchPowerState("OFF")
+    }
+
+    lastEnergy = sensor.ENERGY
   }
 
-  const handleButtonPress = (json: ButtonPress) => {
-    console.log("Button pressed")
+  const handleButtonPress = async (press: ButtonPress) => {
+    if (press.event === "S") {
+      await setSwitchPowerState(displayPower === "ON" ? "OFF" : "ON")
+    }
+  }
+
+  const setSwitchPowerState = async (state: SwitchPowerState) => {
+    await client.publish(powerSwitchPowerTopic, state)
   }
 
   const handleSwitchPowerState = (state: SwitchPowerState) => {
-    console.log(`Switch power state: ${state}`)
+    console.log(`new power state: ${state}`)
+    displayPower = state
   }
 
   client.on("message", (topic: string, payload: Uint8Array) => {
     const stringPayload = new TextDecoder().decode(payload)
 
-    console.log(`Received message: ${topic} ${stringPayload}`)
+    // console.log(`Received message: ${topic} ${stringPayload}`)
 
     switch (topic) {
       case powerSwitchSensorTopic:
