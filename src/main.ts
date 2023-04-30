@@ -42,7 +42,7 @@ const main = async () => {
 
   const handleSensorUpdate = (sensor: SwitchSensorResponse) => {
     console.log(
-      `Power: ${sensor.ENERGY.Power}W Current: ${sensor.ENERGY.Current}A`
+      `Power: ${sensor.ENERGY.Power}W Current: ${sensor.ENERGY.Current}A Voltage: ${sensor.ENERGY.Voltage}V`
     )
 
     if (displayPower === undefined) {
