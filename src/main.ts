@@ -53,10 +53,9 @@ const main = async () => {
     }
 
     if (
-      (sensor.ENERGY.Current < sleepCurrent &&
-        displayPower === "ON" &&
-        lastEnergy?.Current) ??
-      1 < sleepCurrent
+      sensor.ENERGY.Current < sleepCurrent &&
+      displayPower === "ON" &&
+      (lastEnergy?.Current ?? 1) < sleepCurrent
     ) {
       setSwitchPowerState("OFF")
     }
