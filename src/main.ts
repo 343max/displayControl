@@ -71,6 +71,7 @@ const main = async () => {
 
   const setSwitchPowerState = async (state: SwitchPowerState) => {
     await client.publish(powerSwitchPowerTopic, state)
+    lastEnergy = undefined
   }
 
   const handleSwitchPowerState = (state: SwitchPowerState) => {
@@ -80,8 +81,6 @@ const main = async () => {
 
   client.on("message", (topic: string, payload: Uint8Array) => {
     const stringPayload = new TextDecoder().decode(payload)
-
-    // console.log(`Received message: ${topic} ${stringPayload}`)
 
     switch (topic) {
       case powerSwitchSensorTopic:
