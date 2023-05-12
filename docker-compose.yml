@@ -3,6 +3,7 @@ services:
   deno-latest:
     image: denoland/deno:latest
     working_dir: /app
+    restart: always
     environment:
       - APP_ENV=development
     volumes:
