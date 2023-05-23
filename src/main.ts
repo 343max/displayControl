@@ -31,7 +31,7 @@ const buttonPressTopic = "shellies/maxdisplay-button/input_event/0"
 const sleepCurrent = 0.085
 
 const main = async () => {
-  const client = new Client({ url: "mqtt://nuc.fritz.box" })
+  const client = new Client({ url: "mqtt://lol.fritz.box" })
 
   await client.connect()
 
