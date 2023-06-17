@@ -31,7 +31,7 @@ const buttonPressTopic = "shellies/maxdisplay-button/input_event/0"
 const sleepCurrent = 0.085
 
 const main = async () => {
-  const client = new Client({ url: "mqtt://lol.fritz.box" })
+  const client = new Client({ url: "mqtt://mqtt.43v.de" })
 
   await client.connect()
 
@@ -65,6 +65,7 @@ const main = async () => {
 
   const handleButtonPress = async (press: ButtonPress) => {
     if (press.event === "S") {
+      console.log(`current stated: ${displayPower}`)
       await setSwitchPowerState(displayPower === "ON" ? "OFF" : "ON")
     }
   }
