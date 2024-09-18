@@ -1,4 +1,4 @@
-import { Client } from "https://deno.land/x/mqtt/deno/mod.ts"
+import { Client } from "https://deno.land/x/mqtt@0.1.2/deno/mod.ts"
 
 type SwitchSensorResponse = {
   Time: string
@@ -26,7 +26,6 @@ type ButtonPress = {
 
 const powerSwitchSensorTopic = "tele/displaymax/SENSOR"
 const powerSwitchPowerTopic = "cmnd/displaymax/POWER"
-const buttonPressTopic = "shellies/maxdisplay-button/input_event/0"
 
 const sleepCurrent = 0.085
 
@@ -37,37 +36,23 @@ const main = async () => {
 
   await client.subscribe(powerSwitchSensorTopic)
   await client.subscribe(powerSwitchPowerTopic)
-  await client.subscribe(buttonPressTopic)
 
   let displayPower: undefined | SwitchPowerState = undefined
   let lastEnergy: undefined | SwitchSensorResponse["ENERGY"] = undefined
 
   const handleSensorUpdate = (sensor: SwitchSensorResponse) => {
-    console.log(
-      `Power: ${sensor.ENERGY.Power}W Current: ${sensor.ENERGY.Current}A Voltage: ${sensor.ENERGY.Voltage}V`
-    )
+    console.log(`Power: ${sensor.ENERGY.Power}W Current: ${sensor.ENERGY.Current}A Voltage: ${sensor.ENERGY.Voltage}V`)
 
     if (displayPower === undefined) {
       displayPower = sensor.ENERGY.Current > 0 ? "ON" : "OFF"
       console.log(`guessed Display power: ${displayPower}`)
     }
 
-    if (
-      sensor.ENERGY.Current < sleepCurrent &&
-      displayPower === "ON" &&
-      (lastEnergy?.Current ?? 1) < sleepCurrent
-    ) {
+    if (sensor.ENERGY.Current < sleepCurrent && displayPower === "ON" && (lastEnergy?.Current ?? 1) < sleepCurrent) {
       setSwitchPowerState("OFF")
     }
 
     lastEnergy = sensor.ENERGY
-  }
-
-  const handleButtonPress = async (press: ButtonPress) => {
-    if (press.event === "S") {
-      console.log(`current stated: ${displayPower}`)
-      await setSwitchPowerState(displayPower === "ON" ? "OFF" : "ON")
-    }
   }
 
   const setSwitchPowerState = async (state: SwitchPowerState) => {
@@ -86,9 +71,6 @@ const main = async () => {
     switch (topic) {
       case powerSwitchSensorTopic:
         handleSensorUpdate(JSON.parse(stringPayload))
-        break
-      case buttonPressTopic:
-        handleButtonPress(JSON.parse(stringPayload))
         break
       case powerSwitchPowerTopic:
         handleSwitchPowerState(stringPayload as SwitchPowerState)
