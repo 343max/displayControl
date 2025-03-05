@@ -61,7 +61,8 @@ const main = async () => {
 		if (
 			sensor.ENERGY.Current < sleepCurrent &&
 			displayPower === "ON" &&
-			(lastEnergy?.Current ?? 1) < sleepCurrent
+			(lastEnergy?.Current ?? 1) < sleepCurrent &&
+			lastEnergy?.Current !== 0
 		) {
 			setSwitchPowerState("OFF")
 		}
@@ -71,7 +72,7 @@ const main = async () => {
 
 	const handleStateUpdate = (state: SwitchStateReponse) => {
 		const newState = isPowerState(state.POWER) ? state.POWER : "ON"
-if (newState !== displayPower) {
+		if (newState !== displayPower) {
 			console.log(`new display power state: ${newState}`)
 		}
 		displayPower = newState
