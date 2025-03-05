@@ -70,7 +70,11 @@ const main = async () => {
 	}
 
 	const handleStateUpdate = (state: SwitchStateReponse) => {
-		displayPower = isPowerState(state.POWER) ? state.POWER : "ON"
+		const newState = isPowerState(state.POWER) ? state.POWER : "ON"
+if (newState !== displayPower) {
+			console.log(`new display power state: ${newState}`)
+		}
+		displayPower = newState
 	}
 
 	const setSwitchPowerState = async (state: SwitchPowerState) => {
